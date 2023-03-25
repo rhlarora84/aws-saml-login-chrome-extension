@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "version": "0.0.1",
+  "name": "SAMLify for AWS",
+  "description": "Improvised AWS Saml Login Page for multiple Accounts & Roles",
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://signin.aws.amazon.com/saml"
+      ],
+      "js": [
+        "contentScript.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "tabs",
+    "storage",
+    "activeTab"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "aws-saml-login-chrome-extension",
+  "version": "1.0.0",
+  "description": "Chrome Extension for a better UX experience for AWS Saml Login Page with multiple Accounts and Roles",
+  "scripts": {
+    "watch": "webpack --watch --progress --config webpack.dev.js",
+    "build": "webpack --progress --config webpack.prod.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhlarora84/aws-saml-login-chrome-extension.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rhlarora84/aws-saml-login-chrome-extension/issues"
+  },
+  "homepage": "https://github.com/rhlarora84/aws-saml-login-chrome-extension#readme",
+  "dependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.224",
+    "autoprefixer": "^10.4.14",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.3",
+    "html-webpack-plugin": "^5.5.0",
+    "postcss": "^8.4.21",
+    "postcss-cli": "^10.1.0",
+    "postcss-loader": "^7.1.0",
+    "style-loader": "^3.3.1",
+    "tailwindcss": "^3.2.7",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.2",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.1",
+    "webpack-merge": "^5.8.0"
+  }
+}
