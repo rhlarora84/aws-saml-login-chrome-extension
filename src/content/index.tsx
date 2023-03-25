@@ -2,7 +2,7 @@ import React from 'react';
 import '../assets/tailwind.css'
 import * as ReactDOM from 'react-dom';
 import {Account, Role} from "./types";
-import AccountFormComponent from "../components/accountFormComponent";
+import App from "./App";
 
 
 console.log("Reading Accounts")
@@ -50,5 +50,5 @@ const form = document.getElementById('saml_form');
 // Add our React component to the Form
 const root = document.createElement('div');
 form.appendChild(root);
-ReactDOM.render(<AccountFormComponent accounts={accounts}/>, root);
+ReactDOM.render(<App accounts={accounts}/>, root);
 

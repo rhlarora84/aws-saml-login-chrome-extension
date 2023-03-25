@@ -1,10 +1,8 @@
 import React, {useState} from "react";
-import AccountsComponent from "./accountListComponent";
-import SearchComponent from "./searchComponent";
+import SearchComponent from "../components/SearchComponent";
+import AccountsComponent from "../components/AccountListComponent";
 
-
-// Account Form component
-function AccountFormComponent({accounts}) {
+function App({accounts}) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = (term) => {
@@ -27,6 +25,6 @@ function AccountFormComponent({accounts}) {
     );
 }
 
-export default AccountFormComponent;
+export default App;
 
 
