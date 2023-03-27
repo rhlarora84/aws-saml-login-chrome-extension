@@ -21,14 +21,11 @@
   "content_scripts": [
     {
       "matches": [
-        "*://signin.aws.amazon.com/saml"
+        "https://signin.aws.amazon.com/saml"
       ],
       "js": [
         "contentScript.js"
       ]
     }
-  ],
-  "permissions": [
-    "activeTab"
   ]
 }
