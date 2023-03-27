@@ -1,8 +1,8 @@
 import React from 'react';
 import '../assets/tailwind.css'
-import * as ReactDOM from 'react-dom';
 import {Account, Role} from "./types";
 import App from "./App";
+import {createRoot} from "react-dom/client";
 
 
 console.log("Reading Accounts")
@@ -38,17 +38,17 @@ document.querySelectorAll('.saml-account')
 
 accounts = accounts.sort((a, b) => (a.accountName < b.accountName) ? -1 : 1)
 
-// Remove elements from existing form except for Input Variables which are required
 const form = document.getElementById('saml_form');
+let samlResponse = '';
 [...form.children].map(childElement => {
     const element = childElement as Element
-    if (childElement.tagName != 'INPUT') {
-        form.removeChild(childElement)
+    if (childElement.tagName == 'INPUT' && childElement.getAttribute('name') == 'SAMLResponse') {
+        samlResponse = element.getAttribute('value');
     }
 })
 
 // Add our React component to the Form
 const root = document.createElement('div');
-form.appendChild(root);
-ReactDOM.render(<App accounts={accounts}/>, root);
-
+document.body.innerHTML = ''
+document.body.appendChild(root);
+createRoot(root).render(<App accounts={accounts} samlResponse={samlResponse}/>)

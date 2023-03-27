@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import SearchComponent from "../components/SearchComponent";
 import AccountsComponent from "../components/AccountListComponent";
+import NavBarComponent from "../components/NavBarComponent";
 
-function App({accounts}) {
+function App({accounts, samlResponse}) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = (term) => {
@@ -10,18 +10,19 @@ function App({accounts}) {
     };
 
     return (
-        <>
-            <SearchComponent searchTerm={searchTerm} onChange={handleSearch}/>
-            <AccountsComponent accounts={accounts} searchTerm={searchTerm}/>
-            <div className="mt-8">
-                <a id="signin_button" rel="noopener noreferrer" href="#">
-                    <button
-                        className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-                        Sign In
-                    </button>
-                </a>
-            </div>
-        </>
+        <div>
+            <NavBarComponent searchTerm={searchTerm} onChange={handleSearch}/>
+            <form id='saml_form'
+                  name='saml_form'
+                  method='post'
+                  action={'/saml'}>
+                <input type="hidden" name="RelayState" value=""/>
+                <input type="hidden" name="SAMLResponse" value={samlResponse}/>
+                <input type="hidden" name="name" value=""/>
+                <input type="hidden" name="portal" value=""/>
+                <AccountsComponent accounts={accounts} searchTerm={searchTerm}/>
+            </form>
+        </div>
     );
 }
 

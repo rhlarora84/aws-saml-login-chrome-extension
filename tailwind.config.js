@@ -1,17 +1,14 @@
 module.exports = {
-    mode: 'jit',
-    purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-    darkMode: false,
+    content: [
+        "./src/**/*.{js,jsx,ts,tsx}"
+    ],
     theme: {
-        fontFamily: {
-            'Source Sans Pro': [
-                "sans-serif"
-            ],
+        extend: {
+            fontFamily: {
+                'poppins': ['Poppins', 'sans-serif']
+            },
         },
-        extend: {},
-    },
-    variants: {
-        extend: {},
     },
     plugins: [],
-};
+}
+

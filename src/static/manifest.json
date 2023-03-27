@@ -8,6 +8,16 @@
     "48": "logo.png",
     "128": "logo.png"
   },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "logo.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "content_scripts": [
     {
       "matches": [
@@ -19,8 +29,6 @@
     }
   ],
   "permissions": [
-    "tabs",
-    "storage",
     "activeTab"
   ]
 }
