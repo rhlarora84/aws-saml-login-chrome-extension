@@ -25,7 +25,8 @@
       ],
       "js": [
         "contentScript.js"
-      ]
+      ],
+      "run_at": "document_end"
     }
   ]
 }
