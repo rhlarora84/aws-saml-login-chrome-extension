@@ -11,8 +11,8 @@
     "url": "git+https://github.com/rhlarora84/aws-saml-login-chrome-extension.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Rahul Arora",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/rhlarora84/aws-saml-login-chrome-extension/issues"
   },
