@@ -10,7 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/rhlarora84/aws-saml-login-chrome-extension.git"
   },
-  "keywords": [],
+  "keywords": [
+    "saml",
+    "aws",
+    "multi-account"
+  ],
   "author": "Rahul Arora",
   "license": "MIT",
   "bugs": {
