@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.0.1",
+  "version": "0.0.4",
   "name": "SAMLify for AWS",
   "description": "Improvised AWS Saml Login Page for multiple Accounts & Roles",
   "icons": {
@@ -8,6 +8,9 @@
     "48": "logo.png",
     "128": "logo.png"
   },
+  "permissions": [
+    "storage"
+  ],
   "web_accessible_resources": [
     {
       "resources": [
@@ -25,7 +28,8 @@
       ],
       "js": [
         "contentScript.js"
-      ]
+      ],
+      "run_at": "document_end"
     }
   ]
 }

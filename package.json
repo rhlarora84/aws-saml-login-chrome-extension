@@ -10,9 +10,13 @@
     "type": "git",
     "url": "git+https://github.com/rhlarora84/aws-saml-login-chrome-extension.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "saml",
+    "aws",
+    "multi-account"
+  ],
+  "author": "Rahul Arora",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/rhlarora84/aws-saml-login-chrome-extension/issues"
   },
@@ -26,7 +30,8 @@
     "@types/react-dom": "^18.0.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.8.0"
+    "react-icons": "^4.8.0",
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.224",
@@ -45,6 +50,7 @@
     "webpack": "^5.76.3",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.13.1",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "yaml": "^2.2.2"
   }
 }
