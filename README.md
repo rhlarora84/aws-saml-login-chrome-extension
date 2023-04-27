@@ -1,8 +1,10 @@
 # aws-saml-login-chrome-extension
 Chrome Extension for a better UX experience for AWS Saml Login Page with multiple Accounts and Roles
 - Provides the list of accounts in sorted order
+- Mark Account as Favourites to be shown first
+- Easily copy the Account ID 
 - Ability to filter the accounts using search bar
-- Sign In button at the top right corner for easier access
+- Sign In button in the top right corner for easier access
 
 ![](image.png)
 
