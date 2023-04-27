@@ -36,8 +36,6 @@ document.querySelectorAll('.saml-account')
         }
     });
 
-accounts = accounts.sort((a, b) => (a.accountName < b.accountName) ? -1 : 1)
-
 const form = document.getElementById('saml_form');
 let samlResponse = '';
 [...form.children].map(childElement => {
