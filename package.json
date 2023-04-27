@@ -30,7 +30,8 @@
     "@types/react-dom": "^18.0.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.8.0"
+    "react-icons": "^4.8.0",
+    "yaml": ">=2.2.2"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.224",
