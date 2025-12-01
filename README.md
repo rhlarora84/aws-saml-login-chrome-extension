@@ -1,27 +1,45 @@
-# aws-saml-login-chrome-extension
-Chrome Extension for a better UX experience for AWS Saml Login Page with multiple Accounts and Roles
-- Provides the list of accounts in sorted order
-- Mark Account as Favourites to be shown first
-- Easily copy the Account ID 
-- Ability to filter the accounts using search bar
-- Sign In button in the top right corner for easier access
+# SAMLify for AWS
+
+A Chrome extension that enhances the AWS SAML login experience for users with multiple accounts and roles.
+
+## Features
+
+- Accounts displayed in sorted order
+- Mark accounts as favourites (shown first)
+- Copy account ID to clipboard with one click
+- Filter accounts using the search bar (auto-focused)
+- Sign-in button on each role for quick access
 
 ![](image.png)
 
-## Build Instructions
-- Use `npm run build` to build the distribution. Outputs will be created in ./dist directory
-- Use `npm run watch` for watch mode
+## Installation
 
-## Install Plugin on Chrome for Development/Testing
-- Open Google Chrome and go to the extensions page by clicking on the three dots at the top right of the browser and selecting "More tools" > "Extensions".
-- Enable developer mode by toggling the switch at the top right of the page.
-- Click on "Load unpacked" and select the dist folder
-- The plugin should now be installed and visible in your extensions list.
-
-## Install using provided archive
-- Use the provided SAMLify.zip
-- Extract it to a local folder
-- Follow the instructions above on how to install plugin on chrome
-
-## Install using Chrome Webstore
+### Chrome Web Store
 https://chrome.google.com/webstore/detail/samlify-for-aws/nhmhangnpobobcnlfpfblbfkjcoppdng
+
+### From Archive
+1. Download or build `SAMLify.zip`
+2. Extract to a local folder
+3. Open Chrome and navigate to `chrome://extensions/`
+4. Enable "Developer mode" (toggle in top right)
+5. Click "Load unpacked" and select the extracted folder
+
+## Development
+
+### Prerequisites
+- Node.js and npm
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install dependencies |
+| `npm run build` | Build to `./dist` directory |
+| `npm run watch` | Build with watch mode |
+| `npm run package` | Build and create `SAMLify.zip` |
+
+### Loading for Development
+1. Run `npm run build`
+2. Open Chrome and navigate to `chrome://extensions/`
+3. Enable "Developer mode"
+4. Click "Load unpacked" and select the `dist` folder

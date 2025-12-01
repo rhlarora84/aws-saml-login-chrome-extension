@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "SAMLify for AWS",
   "description": "Improvised AWS Saml Login Page for multiple Accounts & Roles",
   "icons": {

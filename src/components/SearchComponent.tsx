@@ -22,6 +22,7 @@ function SearchComponent({searchTerm, onChange}) {
                     placeholder="Search..."
                     value={searchTerm}
                     onChange={(e) => onChange(e.target.value)}
+                    autoFocus
                 />
             </div>
         </div>

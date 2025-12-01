@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCopy, faHome, faStar} from '@fortawesome/free-solid-svg-icons';
+import {faCopy, faHome, faRightToBracket, faStar} from '@fortawesome/free-solid-svg-icons';
 
 
 function AccountsComponent({accounts, searchTerm, samlResponse}) {
@@ -58,6 +58,13 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
         }
     };
 
+    const signIn = (roleArn) => {
+        const form = document.getElementById('saml_form') as HTMLFormElement;
+        const roleInput = document.getElementById('roleIndex') as HTMLInputElement;
+        roleInput.value = roleArn;
+        form.submit();
+    };
+
     return (
         <form
             id='saml_form'
@@ -69,6 +76,7 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
             <input type='hidden' name='SAMLResponse' value={samlResponse}/>
             <input type='hidden' name='name' value=''/>
             <input type='hidden' name='portal' value=''/>
+            <input type='hidden' id='roleIndex' name='roleIndex' value=''/>
 
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {filteredAccounts.map((account) => (
@@ -102,20 +110,17 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
                             </div>
                             <div className='mt-4'>
                                 {account.roles.map((role) => (
-                                    <div key={role.roleArn} className='mb-2'>
-                                        <label className='inline-flex items-center'>
-                                            <input
-                                                id={role.roleArn}
-                                                type='radio'
-                                                className='form-radio saml-radio accent-orange-300 focus:accent-orange-500'
-                                                name='roleIndex'
-                                                value={role.roleArn}
-                                            />
-                                            <span className='ml-2 saml-role-description text-sm text-cyan-800'
-                                                  title={role.roleName}>
-                                                {truncateRoleName(role.roleName)}
-                                            </span>
-                                        </label>
+                                    <div key={role.roleArn} className='mb-2 flex items-center justify-between'>
+                                        <span className='saml-role-description text-sm text-cyan-800'
+                                              title={role.roleName}>
+                                            {truncateRoleName(role.roleName)}
+                                        </span>
+                                        <FontAwesomeIcon
+                                            icon={faRightToBracket}
+                                            className='text-orange-500 hover:text-orange-700 cursor-pointer ml-2'
+                                            title='Sign in'
+                                            onClick={() => signIn(role.roleArn)}
+                                        />
                                     </div>
                                 ))}
                             </div>
