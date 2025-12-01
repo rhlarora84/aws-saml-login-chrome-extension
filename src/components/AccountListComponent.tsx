@@ -10,13 +10,23 @@ interface RecentRole {
     timestamp: number;
 }
 
-function AccountsComponent({accounts, searchTerm, samlResponse}) {
+function AccountsComponent({accounts, searchTerm, samlResponse, compactView}) {
     const [favoriteAccounts, setFavoriteAccounts] = useState([]);
     const [favoritesLoaded, setFavoritesLoaded] = useState(false);
     const [recentRoles, setRecentRoles] = useState<RecentRole[]>([]);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const accountRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    // Highlight matching text in search results
+    const highlightMatch = (text: string, term: string) => {
+        if (!term) return text;
+        const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        const parts = text.split(regex);
+        return parts.map((part, i) =>
+            regex.test(part) ? <mark key={i} className="bg-yellow-300 dark:bg-yellow-600 px-0.5 rounded">{part}</mark> : part
+        );
+    };
 
     // Check if an account is marked as favorite
     const isFavorite = (accountId) => favoriteAccounts.includes(accountId);
@@ -155,7 +165,7 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
             {/* Recent Roles Section */}
             {recentRoles.length > 0 && !searchTerm && (
                 <div className='mb-6'>
-                    <h3 className='text-lg font-semibold text-cyan-900 mb-3 flex items-center'>
+                    <h3 className='text-lg font-semibold text-cyan-900 dark:text-cyan-100 mb-3 flex items-center'>
                         <FontAwesomeIcon icon={faClock} className='mr-2 text-orange-500'/>
                         Recently Used
                     </h3>
@@ -163,12 +173,12 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
                         {recentRoles.map((recent) => (
                             <div
                                 key={recent.roleArn}
-                                className='bg-cyan-100 hover:bg-cyan-200 rounded-lg px-3 py-2 cursor-pointer flex items-center gap-2 transition-colors'
+                                className='bg-cyan-100 hover:bg-cyan-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg px-3 py-2 cursor-pointer flex items-center gap-2 transition-colors'
                                 onClick={() => signInRecent(recent)}
                                 title={`${recent.accountName} - ${recent.roleName}`}
                             >
-                                <span className='text-sm text-cyan-800 font-medium'>{recent.accountName}</span>
-                                <span className='text-xs text-cyan-600'>/ {truncateRoleName(recent.roleName)}</span>
+                                <span className='text-sm text-cyan-800 dark:text-cyan-200 font-medium'>{recent.accountName}</span>
+                                <span className='text-xs text-cyan-600 dark:text-cyan-400'>/ {truncateRoleName(recent.roleName)}</span>
                                 <FontAwesomeIcon
                                     icon={faRightToBracket}
                                     className='text-orange-500 ml-1'
@@ -179,58 +189,107 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
                 </div>
             )}
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-                {filteredAccounts.map((account, index) => (
-                    <div
-                        key={account.accountId}
-                        ref={el => accountRefs.current[index] = el}
-                        className={`bg-white rounded-lg shadow shadow-xl transition-all ${selectedIndex === index ? 'ring-2 ring-orange-500' : ''}`}
-                    >
-                        <div className='p-6 flex flex-col justify-between'>
-                            <div>
-                                <h2 className='mb-4 text-base font-bold max-w-xs text-cyan-900'>
+            {compactView ? (
+                /* Compact List View */
+                <div className='space-y-2'>
+                    {filteredAccounts.map((account, index) => (
+                        <div
+                            key={account.accountId}
+                            ref={el => accountRefs.current[index] = el}
+                            className={`bg-white dark:bg-gray-800 rounded-lg shadow p-3 transition-all ${selectedIndex === index ? 'ring-2 ring-orange-500' : ''}`}
+                        >
+                            <div className='flex items-center justify-between flex-wrap gap-2'>
+                                <div className='flex items-center gap-2'>
                                     <FontAwesomeIcon
                                         icon={isFavorite(account.accountId) ? faStar : faHome}
-                                        className="text-orange-500 mr-2 cursor-pointer"
+                                        className="text-orange-500 cursor-pointer"
                                         title={isFavorite(account.accountId) ? 'Remove from favorites' : 'Add to favorites'}
                                         onClick={() => toggleFavorite(account.accountId)}
                                     />
-                                    {account.accountName}
-                                </h2>
-                                <hr className='my-2'/>
-                                <p className='text-sm text-cyan-700'>
-                                    <span className='bg-cyan-200 px-2 py-1'>
-                                      {account.accountId}
+                                    <span className='font-semibold text-cyan-900 dark:text-cyan-100'>
+                                        {highlightMatch(account.accountName, searchTerm)}
+                                    </span>
+                                    <span className='text-xs bg-cyan-200 dark:bg-gray-600 text-cyan-800 dark:text-cyan-200 px-2 py-0.5 rounded'>
+                                        {highlightMatch(account.accountId, searchTerm)}
                                         <FontAwesomeIcon
                                             icon={copiedId === account.accountId ? faCheck : faCopy}
-                                            className={`ml-2 cursor-pointer ${copiedId === account.accountId ? 'text-green-600' : 'text-gray-400 hover:text-gray-700'}`}
-                                            title={copiedId === account.accountId ? 'Copied!' : 'Copy account ID'}
+                                            className={`ml-1 cursor-pointer ${copiedId === account.accountId ? 'text-green-600' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                             onClick={() => copyToClipboard(account.accountId)}
                                         />
                                     </span>
-                                </p>
-                                <hr className='my-2'/>
-                            </div>
-                            <div className='mt-4'>
-                                {account.roles.map((role) => (
-                                    <div key={role.roleArn} className='mb-2 flex items-center justify-between'>
-                                        <span className='saml-role-description text-sm text-cyan-800'
-                                              title={role.roleName}>
-                                            {truncateRoleName(role.roleName)}
-                                        </span>
-                                        <FontAwesomeIcon
-                                            icon={faRightToBracket}
-                                            className='text-orange-500 hover:text-orange-700 cursor-pointer ml-2'
-                                            title='Sign in'
+                                </div>
+                                <div className='flex items-center gap-2 flex-wrap'>
+                                    {account.roles.map((role) => (
+                                        <button
+                                            key={role.roleArn}
+                                            className='text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-cyan-800 dark:text-cyan-200 px-2 py-1 rounded flex items-center gap-1 transition-colors'
                                             onClick={() => signIn(role.roleArn, account.accountId, account.accountName, role.roleName)}
-                                        />
-                                    </div>
-                                ))}
+                                            title={role.roleName}
+                                        >
+                                            {highlightMatch(truncateRoleName(role.roleName), searchTerm)}
+                                            <FontAwesomeIcon icon={faRightToBracket} className='text-orange-500'/>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                /* Grid Card View */
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    {filteredAccounts.map((account, index) => (
+                        <div
+                            key={account.accountId}
+                            ref={el => accountRefs.current[index] = el}
+                            className={`bg-white dark:bg-gray-800 rounded-lg shadow shadow-xl transition-all ${selectedIndex === index ? 'ring-2 ring-orange-500' : ''}`}
+                        >
+                            <div className='p-6 flex flex-col justify-between'>
+                                <div>
+                                    <h2 className='mb-4 text-base font-bold max-w-xs text-cyan-900 dark:text-cyan-100'>
+                                        <FontAwesomeIcon
+                                            icon={isFavorite(account.accountId) ? faStar : faHome}
+                                            className="text-orange-500 mr-2 cursor-pointer"
+                                            title={isFavorite(account.accountId) ? 'Remove from favorites' : 'Add to favorites'}
+                                            onClick={() => toggleFavorite(account.accountId)}
+                                        />
+                                        {highlightMatch(account.accountName, searchTerm)}
+                                    </h2>
+                                    <hr className='my-2 dark:border-gray-600'/>
+                                    <p className='text-sm text-cyan-700 dark:text-cyan-300'>
+                                        <span className='bg-cyan-200 dark:bg-gray-600 px-2 py-1 rounded'>
+                                          {highlightMatch(account.accountId, searchTerm)}
+                                            <FontAwesomeIcon
+                                                icon={copiedId === account.accountId ? faCheck : faCopy}
+                                                className={`ml-2 cursor-pointer ${copiedId === account.accountId ? 'text-green-600' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                title={copiedId === account.accountId ? 'Copied!' : 'Copy account ID'}
+                                                onClick={() => copyToClipboard(account.accountId)}
+                                            />
+                                        </span>
+                                    </p>
+                                    <hr className='my-2 dark:border-gray-600'/>
+                                </div>
+                                <div className='mt-4'>
+                                    {account.roles.map((role) => (
+                                        <div key={role.roleArn} className='mb-2 flex items-center justify-between'>
+                                            <span className='saml-role-description text-sm text-cyan-800 dark:text-cyan-200'
+                                                  title={role.roleName}>
+                                                {highlightMatch(truncateRoleName(role.roleName), searchTerm)}
+                                            </span>
+                                            <FontAwesomeIcon
+                                                icon={faRightToBracket}
+                                                className='text-orange-500 hover:text-orange-700 cursor-pointer ml-2'
+                                                title='Sign in'
+                                                onClick={() => signIn(role.roleArn, account.accountId, account.accountName, role.roleName)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </form>
     );
 }
