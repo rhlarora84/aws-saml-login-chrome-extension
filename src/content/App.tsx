@@ -1,11 +1,14 @@
 import React, {useState, useEffect} from "react";
 import AccountsComponent from "../components/AccountListComponent";
 import NavBarComponent from "../components/NavBarComponent";
+import {AppProps, UsageStats} from "./types";
 
-function App({accounts, samlResponse}) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [darkMode, setDarkMode] = useState(false);
-    const [compactView, setCompactView] = useState(false);
+function App({accounts, samlResponse}: AppProps) {
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [darkMode, setDarkMode] = useState<boolean>(false);
+    const [compactView, setCompactView] = useState<boolean>(false);
+    const [showStats, setShowStats] = useState<boolean>(false);
+    const [hasUsageStats, setHasUsageStats] = useState<boolean>(false);
 
     // Load preferences from storage and detect system preference
     useEffect(() => {
@@ -19,9 +22,15 @@ function App({accounts, samlResponse}) {
                 setCompactView(data.compactView);
             }
         });
+        // Check if we have usage stats
+        chrome.storage.local.get(['usageStats'], (data) => {
+            if (data.usageStats && Object.keys(data.usageStats).length > 0) {
+                setHasUsageStats(true);
+            }
+        });
     }, []);
 
-    const handleSearch = (term) => {
+    const handleSearch = (term: string): void => {
         setSearchTerm(term);
     };
 
@@ -37,9 +46,13 @@ function App({accounts, samlResponse}) {
         chrome.storage.sync.set({compactView: newValue});
     };
 
+    const toggleShowStats = () => {
+        setShowStats(!showStats);
+    };
+
     return (
-        <div className={darkMode ? 'dark' : ''}>
-            <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+        <div className={darkMode ? 'dark' : ''} role="application" aria-label="SAMLify AWS Account Selector">
+            <div className="min-h-screen bg-slate-100 dark:bg-slate-900 transition-colors">
                 <NavBarComponent
                     searchTerm={searchTerm}
                     onChange={handleSearch}
@@ -48,6 +61,9 @@ function App({accounts, samlResponse}) {
                     compactView={compactView}
                     toggleCompactView={toggleCompactView}
                     totalAccounts={accounts.length}
+                    showStats={showStats}
+                    toggleShowStats={toggleShowStats}
+                    hasUsageStats={hasUsageStats}
                 />
                 <div className="p-4">
                     <AccountsComponent
@@ -55,6 +71,7 @@ function App({accounts, samlResponse}) {
                         searchTerm={searchTerm}
                         samlResponse={samlResponse}
                         compactView={compactView}
+                        showStats={showStats}
                     />
                 </div>
             </div>
