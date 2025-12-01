@@ -1,6 +1,6 @@
 {
   "name": "aws-saml-login-chrome-extension",
-  "version": "1.0.0",
+  "version": "V0.0.5",
   "description": "Chrome Extension for a better UX experience for AWS Saml Login Page with multiple Accounts and Roles",
   "scripts": {
     "watch": "webpack --watch --progress --config webpack.dev.js",
