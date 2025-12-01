@@ -1,27 +1,47 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCopy, faHome, faRightToBracket, faStar} from '@fortawesome/free-solid-svg-icons';
+import {faCopy, faHome, faRightToBracket, faStar, faClock, faCheck} from '@fortawesome/free-solid-svg-icons';
 
+interface RecentRole {
+    accountId: string;
+    accountName: string;
+    roleArn: string;
+    roleName: string;
+    timestamp: number;
+}
 
 function AccountsComponent({accounts, searchTerm, samlResponse}) {
     const [favoriteAccounts, setFavoriteAccounts] = useState([]);
+    const [favoritesLoaded, setFavoritesLoaded] = useState(false);
+    const [recentRoles, setRecentRoles] = useState<RecentRole[]>([]);
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+    const accountRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     // Check if an account is marked as favorite
     const isFavorite = (accountId) => favoriteAccounts.includes(accountId);
 
-    // Load the favorite accounts from Chrome storage
+    // Load the favorite accounts and recent roles from Chrome storage
     useEffect(() => {
         chrome.storage.sync.get('favoriteAccounts', (data) => {
             if (data.favoriteAccounts) {
                 setFavoriteAccounts(data.favoriteAccounts);
             }
+            setFavoritesLoaded(true);
+        });
+        chrome.storage.local.get('recentRoles', (data) => {
+            if (data.recentRoles) {
+                setRecentRoles(data.recentRoles);
+            }
         });
     }, []);
 
-    // Save the favorite accounts to Chrome storage
+    // Save the favorite accounts to Chrome storage (only after initial load)
     useEffect(() => {
-        chrome.storage.sync.set({favoriteAccounts});
-    }, [favoriteAccounts]);
+        if (favoritesLoaded) {
+            chrome.storage.sync.set({favoriteAccounts});
+        }
+    }, [favoriteAccounts, favoritesLoaded]);
 
     // Toggle the favorite status of an account
     const toggleFavorite = (accountId) => {
@@ -32,10 +52,12 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
         }
     };
 
+    // Filter accounts - now includes role name search
     const filteredAccounts = accounts.filter(
         (account) =>
             account.accountName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            account.accountId.toLowerCase().includes(searchTerm.toLowerCase())
+            account.accountId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            account.roles.some(role => role.roleName.toLowerCase().includes(searchTerm.toLowerCase()))
     ).sort((a, b) => {
         if (isFavorite(b.accountId) !== isFavorite(a.accountId)) {
             return isFavorite(b.accountId) ? 1 : -1;
@@ -43,10 +65,45 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
         return a.accountName.localeCompare(b.accountName);
     });
 
-    // Copy account ID to clipboard
+    // Copy account ID to clipboard with feedback
     const copyToClipboard = (accountId) => {
         navigator.clipboard.writeText(accountId);
+        setCopiedId(accountId);
+        setTimeout(() => setCopiedId(null), 1500);
     };
+
+    // Keyboard navigation (supports arrow keys for grid layout)
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Skip if user is typing in search
+            if ((e.target as HTMLElement).tagName === 'INPUT') {
+                if (e.key === 'Escape') {
+                    (e.target as HTMLInputElement).blur();
+                    setSelectedIndex(-1);
+                }
+                return;
+            }
+
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                setSelectedIndex(prev => Math.min(prev + 1, filteredAccounts.length - 1));
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                setSelectedIndex(prev => Math.max(prev - 1, -1));
+            } else if (e.key === 'Escape') {
+                setSelectedIndex(-1);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [filteredAccounts.length]);
+
+    // Scroll selected account into view
+    useEffect(() => {
+        if (selectedIndex >= 0 && accountRefs.current[selectedIndex]) {
+            accountRefs.current[selectedIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [selectedIndex]);
 
     const MAX_ROLE_NAME_LENGTH = 20; // Maximum length of displayed role name before truncation
 
@@ -58,11 +115,28 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
         }
     };
 
-    const signIn = (roleArn) => {
+    // Track recent role and sign in
+    const signIn = (roleArn: string, accountId: string, accountName: string, roleName: string) => {
+        // Save to recent roles
+        const newRecent: RecentRole = {
+            accountId,
+            accountName,
+            roleArn,
+            roleName,
+            timestamp: Date.now()
+        };
+        const updatedRecent = [newRecent, ...recentRoles.filter(r => r.roleArn !== roleArn)].slice(0, 5);
+        chrome.storage.local.set({recentRoles: updatedRecent});
+
         const form = document.getElementById('saml_form') as HTMLFormElement;
         const roleInput = document.getElementById('roleIndex') as HTMLInputElement;
         roleInput.value = roleArn;
         form.submit();
+    };
+
+    // Sign in from recent
+    const signInRecent = (recent: RecentRole) => {
+        signIn(recent.roleArn, recent.accountId, recent.accountName, recent.roleName);
     };
 
     return (
@@ -78,11 +152,39 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
             <input type='hidden' name='portal' value=''/>
             <input type='hidden' id='roleIndex' name='roleIndex' value=''/>
 
+            {/* Recent Roles Section */}
+            {recentRoles.length > 0 && !searchTerm && (
+                <div className='mb-6'>
+                    <h3 className='text-lg font-semibold text-cyan-900 mb-3 flex items-center'>
+                        <FontAwesomeIcon icon={faClock} className='mr-2 text-orange-500'/>
+                        Recently Used
+                    </h3>
+                    <div className='flex flex-wrap gap-2'>
+                        {recentRoles.map((recent) => (
+                            <div
+                                key={recent.roleArn}
+                                className='bg-cyan-100 hover:bg-cyan-200 rounded-lg px-3 py-2 cursor-pointer flex items-center gap-2 transition-colors'
+                                onClick={() => signInRecent(recent)}
+                                title={`${recent.accountName} - ${recent.roleName}`}
+                            >
+                                <span className='text-sm text-cyan-800 font-medium'>{recent.accountName}</span>
+                                <span className='text-xs text-cyan-600'>/ {truncateRoleName(recent.roleName)}</span>
+                                <FontAwesomeIcon
+                                    icon={faRightToBracket}
+                                    className='text-orange-500 ml-1'
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-                {filteredAccounts.map((account) => (
+                {filteredAccounts.map((account, index) => (
                     <div
                         key={account.accountId}
-                        className='bg-white rounded-lg shadow shadow-xl'
+                        ref={el => accountRefs.current[index] = el}
+                        className={`bg-white rounded-lg shadow shadow-xl transition-all ${selectedIndex === index ? 'ring-2 ring-orange-500' : ''}`}
                     >
                         <div className='p-6 flex flex-col justify-between'>
                             <div>
@@ -100,8 +202,9 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
                                     <span className='bg-cyan-200 px-2 py-1'>
                                       {account.accountId}
                                         <FontAwesomeIcon
-                                            icon={faCopy}
-                                            className='text-gray-400 ml-2 hover:text-gray-700 cursor-pointer'
+                                            icon={copiedId === account.accountId ? faCheck : faCopy}
+                                            className={`ml-2 cursor-pointer ${copiedId === account.accountId ? 'text-green-600' : 'text-gray-400 hover:text-gray-700'}`}
+                                            title={copiedId === account.accountId ? 'Copied!' : 'Copy account ID'}
                                             onClick={() => copyToClipboard(account.accountId)}
                                         />
                                     </span>
@@ -119,7 +222,7 @@ function AccountsComponent({accounts, searchTerm, samlResponse}) {
                                             icon={faRightToBracket}
                                             className='text-orange-500 hover:text-orange-700 cursor-pointer ml-2'
                                             title='Sign in'
-                                            onClick={() => signIn(role.roleArn)}
+                                            onClick={() => signIn(role.roleArn, account.accountId, account.accountName, role.roleName)}
                                         />
                                     </div>
                                 ))}
